@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Local secrets and database
+.env
+app.db
+
+# Tool/cache files
+.ruff_cache/
+.DS_Store

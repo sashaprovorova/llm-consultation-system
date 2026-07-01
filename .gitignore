@@ -1,0 +1,17 @@
+# python
+.venv/
+__pycache__/
+*.py[oc]
+.pytest_cache/
+.ruff_cache/
+
+# env and local db
+.env
+*.db
+
+# system
+.DS_Store
+
+# local editor
+.vscode/
+.idea/
