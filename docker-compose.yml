@@ -11,3 +11,62 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  auth_service:
+    build:
+      context: ./auth_service
+    container_name: llm_auth_service
+    env_file:
+      - ./auth_service/.env
+    environment:
+      SQLITE_PATH: /app/auth.db
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - rabbitmq
+
+  bot_service_api:
+    build:
+      context: ./bot_service
+    container_name: llm_bot_service_api
+    env_file:
+      - ./bot_service/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672//
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+      - rabbitmq
+
+  celery_worker:
+    build:
+      context: ./bot_service
+    container_name: llm_celery_worker
+    env_file:
+      - ./bot_service/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672//
+    command: celery -A app.infra.celery_app.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - rabbitmq
+
+  telegram_bot:
+    build:
+      context: ./bot_service
+    container_name: llm_telegram_bot
+    env_file:
+      - ./bot_service/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672//
+    command: python -m app.bot.run_bot
+    depends_on:
+      - redis
+      - rabbitmq
+      - celery_worker

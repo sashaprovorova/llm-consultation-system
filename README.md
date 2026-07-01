@@ -86,6 +86,8 @@ llm-consultation-system/
 │       └── 11_bot_tests.png
 │
 ├── auth_service/
+│   ├── Dockerfile
+│   ├── .dockerignore
 │   ├── pyproject.toml
 │   ├── pytest.ini
 │   ├── .env.example
@@ -123,6 +125,8 @@ llm-consultation-system/
 │       └── test_security.py
 │
 └── bot_service/
+    ├── Dockerfile
+    ├── .dockerignore
     ├── pyproject.toml
     ├── pytest.ini
     ├── .env.example
@@ -249,18 +253,41 @@ uv pip install -r <(uv pip compile pyproject.toml)
 
 ---
 
-## Запуск инфраструктуры
+## Запуск через Docker Compose
 
-Redis и RabbitMQ запускаются через Docker Compose:
+Всю систему можно запустить через Docker Compose:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-Проверить запущенные контейнеры:
+После запуска доступны:
+
+```text
+Auth Service Swagger: http://localhost:8000/docs
+Bot Service health-check: http://localhost:8001/health
+RabbitMQ Management UI: http://localhost:15672
+```
+
+Логин и пароль для RabbitMQ:
 
 ```bash
-docker ps
+guest / guest
+```
+
+При запуске через Docker Compose значения Redis и RabbitMQ переопределяются в `docker-compose.yml`:
+
+```env
+REDIS_URL=redis://redis:6379/0
+RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
+```
+
+## Альтернативный локальный запуск
+
+Если сервисы запускаются локально через `uv`, то через Docker Compose можно поднять только инфраструктуру:
+
+```bash
+docker compose up -d redis rabbitmq
 ```
 
 RabbitMQ Management UI доступен по адресу:
